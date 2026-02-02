@@ -349,7 +349,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { BarChart } from 'react-native-gifted-charts'; 
+import { BarChart}  from 'react-native-gifted-charts'; 
 import Colors from '../Constants/Colors';
 import GlobalStyles from '../Constants/Styles';
 import db from '../Services/Database';
@@ -437,7 +437,7 @@ const TrackProgress = () => {
         </View>
       </View>
 
-      {/* Real Bar Chart Section */}
+      
       <View style={styles.graphContainer}>
         <Text style={styles.graphTitle}>Weekly Activity</Text>
         <BarChart
