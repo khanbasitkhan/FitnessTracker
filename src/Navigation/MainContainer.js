@@ -114,7 +114,7 @@ import {
   Animated,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { Dumbbell, LineChart } from 'lucide-react-native'; // Modern Icons
+import { Dumbbell, LineChart } from 'lucide-react-native'; 
 import LogWorkout from '../Screens/LogWorkout';
 import TrackProgress from '../Screens/TrackProgress';
 import Colors from '../Constants/Colors';
@@ -146,11 +146,11 @@ const MainContainer = () => {
         </View>
       </PagerView>
 
-      {/* Floating Amazing Tab Bar */}
+      
       <View style={styles.tabContainer}>
         <View style={styles.floatingTabBar}>
           
-          {/* Workout Tab */}
+          
           <TouchableOpacity
             style={styles.tabItem}
             onPress={() => onTabPress(0)}
@@ -168,7 +168,7 @@ const MainContainer = () => {
             </Text>
           </TouchableOpacity>
 
-          {/* Progress Tab */}
+          
           <TouchableOpacity
             style={styles.tabItem}
             onPress={() => onTabPress(1)}
@@ -195,7 +195,7 @@ const MainContainer = () => {
 const styles = StyleSheet.create({
   tabContainer: {
     position: 'absolute',
-    bottom: 30, // Screen se thora upar (Floating effect)
+    bottom: 30, 
     width: '100%',
     alignItems: 'center',
     paddingHorizontal: 20,
@@ -204,10 +204,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: width * 0.85,
     height: 75,
-    backgroundColor: Colors.surface, // Dark surface color
+    backgroundColor: Colors.surface, 
     borderRadius: 35,
-    elevation: 10, // Shadow for Android
-    shadowColor: '#000', // Shadow for iOS
+    elevation: 10, 
+    shadowColor: '#000',
     shadowOffset: { width: 0, height: 10 },
     shadowOpacity: 0.3,
     shadowRadius: 20,
@@ -227,7 +227,7 @@ const styles = StyleSheet.create({
     marginBottom: 4,
   },
   activeIconBg: {
-    backgroundColor: Colors.primary, // Icon background glows when active
+    backgroundColor: Colors.primary, 
     transform: [{ scale: 1.1 }],
   },
   tabText: {
