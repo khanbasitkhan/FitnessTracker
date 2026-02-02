@@ -126,6 +126,216 @@
 
 // export default LogWorkout;
 
+// import React, { useState, useEffect } from 'react';
+// import {
+//   View,
+//   Text,
+//   TouchableOpacity,
+//   FlatList,
+//   TextInput,
+//   Alert,
+//   StyleSheet,
+//   ScrollView,
+// } from 'react-native';
+// import Colors from '../Constants/Colors';
+// import GlobalStyles from '../Constants/Styles';
+// import { workoutList, calculateCalories } from '../Utils/FitnessCalc';
+// import db from '../Services/Database';
+
+// const LogWorkout = ({ userWeight, navigation }) => {
+//   const [selectedWorkout, setSelectedWorkout] = useState(null);
+//   const [duration, setDuration] = useState('');
+//   const [estimatedCalories, setEstimatedCalories] = useState('0');
+
+//   useEffect(() => {
+//     if (selectedWorkout && duration) {
+//       const cals = calculateCalories(
+//         selectedWorkout.met,
+//         userWeight || 70,
+//         parseInt(duration) || 0,
+//       );
+//       setEstimatedCalories(cals.toFixed(0));
+//     } else {
+//       setEstimatedCalories('0');
+//     }
+//   }, [selectedWorkout, duration]);
+
+//   const saveWorkout = () => {
+//     if (!selectedWorkout || !duration) {
+//       Alert.alert('Error', 'Please select a workout and enter duration.');
+//       return;
+//     }
+
+//     const today = new Date().toISOString().split('T')[0];
+
+//     db.transaction(tx => {
+//       tx.executeSql(
+//         'INSERT INTO workouts (type, duration, calories, date) VALUES (?,?,?,?)',
+//         [selectedWorkout.name, duration, estimatedCalories, today],
+//         () => {
+//           Alert.alert('Success', `Logged ${estimatedCalories} kcal!`);
+//           navigation?.goBack();
+//         },
+//       );
+//     });
+//   };
+
+//   return (
+//     <ScrollView
+//       style={GlobalStyles.container}
+//       keyboardShouldPersistTaps="handled"
+//     >
+//       <Text style={GlobalStyles.heading}>Log Workout</Text>
+//       <Text style={[GlobalStyles.subHeading, { marginBottom: 25 }]}>
+//         What did you do today?
+//       </Text>
+
+//       <View style={{ marginBottom: 25 }}>
+//         <Text style={styles.inputLabel}>Select Activity</Text>
+//         <FlatList
+//           data={workoutList}
+//           horizontal
+//           showsHorizontalScrollIndicator={false}
+//           keyExtractor={item => item.id.toString()}
+//           renderItem={({ item }) => (
+//             <TouchableOpacity
+//               style={[
+//                 styles.chip,
+//                 selectedWorkout?.id === item.id && styles.activeChip,
+//               ]}
+//               onPress={() => setSelectedWorkout(item)}
+//             >
+//               <Text
+//                 style={[
+//                   styles.chipText,
+//                   selectedWorkout?.id === item.id && { color: Colors.primary },
+//                 ]}
+//               >
+//                 {item.name}
+//               </Text>
+//             </TouchableOpacity>
+//           )}
+//         />
+//       </View>
+
+//       {/* 2. Duration & Calories Row */}
+//       <View style={styles.inputsRow}>
+//         <View style={{ flex: 1, marginRight: 15 }}>
+//           <Text style={styles.inputLabel}>Duration (Mins)</Text>
+//           <TextInput
+//             style={styles.input}
+//             placeholder="0"
+//             placeholderTextColor={Colors.textMuted}
+//             keyboardType="numeric"
+//             value={duration}
+//             onChangeText={setDuration}
+//           />
+//         </View>
+
+//         <View style={{ flex: 1 }}>
+//           <Text style={styles.inputLabel}>Burned Calories</Text>
+//           <View style={[styles.input, styles.disabledInput]}>
+//             <Text style={styles.caloriesText}>{estimatedCalories} kcal</Text>
+//           </View>
+//         </View>
+//       </View>
+
+//       {selectedWorkout && (
+//         <View style={styles.summaryCard}>
+//           <Text style={{ color: Colors.textSecondary, fontSize: 14 }}>
+//             Summary
+//           </Text>
+//           <Text
+//             style={{
+//               color: Colors.textPrimary,
+//               fontSize: 18,
+//               fontWeight: 'bold',
+//               marginTop: 5,
+//             }}
+//           >
+//             {selectedWorkout.name} for {duration || '0'} mins
+//           </Text>
+//         </View>
+//       )}
+
+//       <TouchableOpacity
+//         style={[
+//           GlobalStyles.primaryButton,
+//           { marginTop: 40, opacity: selectedWorkout && duration ? 1 : 0.6 },
+//         ]}
+//         onPress={saveWorkout}
+//         disabled={!selectedWorkout || !duration}
+//       >
+//         <Text style={GlobalStyles.buttonText}>Save Workout</Text>
+//       </TouchableOpacity>
+//     </ScrollView>
+//   );
+// };
+
+// const styles = StyleSheet.create({
+//   inputLabel: {
+//     color: Colors.textSecondary,
+//     marginBottom: 10,
+//     fontSize: 14,
+//     fontWeight: '600',
+//   },
+//   chip: {
+//     paddingHorizontal: 22,
+//     paddingVertical: 12,
+//     borderRadius: 25,
+//     borderWidth: 1,
+//     borderColor: Colors.border,
+//     marginRight: 12,
+//     backgroundColor: Colors.surface,
+//   },
+//   activeChip: {
+//     borderColor: Colors.primary,
+//     backgroundColor: Colors.primary + '15',
+//   },
+//   chipText: {
+//     color: Colors.textSecondary,
+//     fontWeight: '500',
+//   },
+//   inputsRow: {
+//     flexDirection: 'row',
+//     justifyContent: 'space-between',
+//     alignItems: 'center',
+//   },
+//   input: {
+//     backgroundColor: Colors.surface,
+//     borderRadius: 15,
+//     padding: 18,
+//     color: '#fff',
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     borderWidth: 1,
+//     borderColor: Colors.border,
+//     textAlign: 'center',
+//   },
+//   disabledInput: {
+//     backgroundColor: Colors.background,
+//     borderStyle: 'dashed',
+//     borderColor: Colors.textMuted,
+//     justifyContent: 'center',
+//   },
+//   caloriesText: {
+//     color: Colors.primary,
+//     fontSize: 20,
+//     fontWeight: 'bold',
+//     textAlign: 'center',
+//   },
+//   summaryCard: {
+//     backgroundColor: Colors.surface,
+//     padding: 20,
+//     borderRadius: 20,
+//     marginTop: 30,
+//     borderLeftWidth: 4,
+//     borderLeftColor: Colors.primary,
+//   },
+// });
+
+// export default LogWorkout;
+
 import React, { useState, useEffect } from 'react';
 import {
   View,
@@ -136,6 +346,7 @@ import {
   Alert,
   StyleSheet,
   ScrollView,
+  Keyboard,
 } from 'react-native';
 import Colors from '../Constants/Colors';
 import GlobalStyles from '../Constants/Styles';
@@ -147,6 +358,8 @@ const LogWorkout = ({ userWeight, navigation }) => {
   const [duration, setDuration] = useState('');
   const [estimatedCalories, setEstimatedCalories] = useState('0');
 
+
+  const isFormValid = selectedWorkout && duration && parseInt(duration) > 0;
 
   useEffect(() => {
     if (selectedWorkout && duration) {
@@ -162,11 +375,6 @@ const LogWorkout = ({ userWeight, navigation }) => {
   }, [selectedWorkout, duration]);
 
   const saveWorkout = () => {
-    if (!selectedWorkout || !duration) {
-      Alert.alert('Error', 'Please select a workout and enter duration.');
-      return;
-    }
-
     const today = new Date().toISOString().split('T')[0];
 
     db.transaction(tx => {
@@ -174,11 +382,23 @@ const LogWorkout = ({ userWeight, navigation }) => {
         'INSERT INTO workouts (type, duration, calories, date) VALUES (?,?,?,?)',
         [selectedWorkout.name, duration, estimatedCalories, today],
         () => {
-          Alert.alert('Success', `Logged ${estimatedCalories} kcal!`);
-          navigation?.goBack();
+          
+          Alert.alert(
+            '🎉 Success!',
+            `Workout Saved Successfully!\n\nYou burned ${estimatedCalories} kcal. Keep it up! 💪`,
+            [{ text: 'Awesome!', onPress: () => clearFields() }],
+          );
+          Keyboard.dismiss();
         },
       );
     });
+  };
+
+
+  const clearFields = () => {
+    setSelectedWorkout(null);
+    setDuration('');
+    setEstimatedCalories('0');
   };
 
   return (
@@ -191,7 +411,6 @@ const LogWorkout = ({ userWeight, navigation }) => {
         What did you do today?
       </Text>
 
-     
       <View style={{ marginBottom: 25 }}>
         <Text style={styles.inputLabel}>Select Activity</Text>
         <FlatList
@@ -220,7 +439,6 @@ const LogWorkout = ({ userWeight, navigation }) => {
         />
       </View>
 
-      {/* 2. Duration & Calories Row */}
       <View style={styles.inputsRow}>
         <View style={{ flex: 1, marginRight: 15 }}>
           <Text style={styles.inputLabel}>Duration (Mins)</Text>
@@ -228,9 +446,11 @@ const LogWorkout = ({ userWeight, navigation }) => {
             style={styles.input}
             placeholder="0"
             placeholderTextColor={Colors.textMuted}
-            keyboardType="numeric"
+            keyboardType="number-pad" 
             value={duration}
             onChangeText={setDuration}
+            textAlign="center"
+            selectionColor={Colors.primary} 
           />
         </View>
 
@@ -242,34 +462,38 @@ const LogWorkout = ({ userWeight, navigation }) => {
         </View>
       </View>
 
-      
       {selectedWorkout && (
         <View style={styles.summaryCard}>
           <Text style={{ color: Colors.textSecondary, fontSize: 14 }}>
             Summary
           </Text>
-          <Text
-            style={{
-              color: Colors.textPrimary,
-              fontSize: 18,
-              fontWeight: 'bold',
-              marginTop: 5,
-            }}
-          >
+          <Text style={styles.summaryText}>
             {selectedWorkout.name} for {duration || '0'} mins
           </Text>
         </View>
       )}
 
+      
       <TouchableOpacity
         style={[
           GlobalStyles.primaryButton,
-          { marginTop: 40, opacity: selectedWorkout && duration ? 1 : 0.6 },
+          {
+            marginTop: 40,
+            backgroundColor: isFormValid ? Colors.primary : '#333', // Dark color when disabled
+            opacity: isFormValid ? 1 : 0.5,
+          },
         ]}
         onPress={saveWorkout}
-        disabled={!selectedWorkout || !duration}
+        disabled={!isFormValid}
       >
-        <Text style={GlobalStyles.buttonText}>Save Workout</Text>
+        <Text
+          style={[
+            GlobalStyles.buttonText,
+            { color: isFormValid ? '#000' : '#888' },
+          ]}
+        >
+          Save Workout
+        </Text>
       </TouchableOpacity>
     </ScrollView>
   );
@@ -293,7 +517,7 @@ const styles = StyleSheet.create({
   },
   activeChip: {
     borderColor: Colors.primary,
-    backgroundColor: Colors.primary + '15', 
+    backgroundColor: Colors.primary + '15',
   },
   chipText: {
     color: Colors.textSecondary,
@@ -307,13 +531,14 @@ const styles = StyleSheet.create({
   input: {
     backgroundColor: Colors.surface,
     borderRadius: 15,
-    padding: 18,
+    paddingVertical: 18,
+    paddingHorizontal: 5,
     color: '#fff',
-    fontSize: 20,
+    fontSize: 22,
     fontWeight: 'bold',
     borderWidth: 1,
     borderColor: Colors.border,
-    textAlign: 'center',
+    textAlign: 'center', 
   },
   disabledInput: {
     backgroundColor: Colors.background,
@@ -334,6 +559,12 @@ const styles = StyleSheet.create({
     marginTop: 30,
     borderLeftWidth: 4,
     borderLeftColor: Colors.primary,
+  },
+  summaryText: {
+    color: Colors.textPrimary,
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginTop: 5,
   },
 });
 
