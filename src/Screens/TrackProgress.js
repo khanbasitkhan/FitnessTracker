@@ -348,28 +348,25 @@
 // export default TrackProgress;
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { BarChart}  from 'react-native-gifted-charts'; 
+import { View, Text, StyleSheet, ScrollView, Dimensions } from 'react-native'; // Dimensions add kiya
+import { BarChart } from 'react-native-gifted-charts';
 import Colors from '../Constants/Colors';
 import GlobalStyles from '../Constants/Styles';
 import db from '../Services/Database';
 import WorkoutCard from '../Components/WorkoutCard';
 
+// Screen width nikalne ke liye
+const screenWidth = Dimensions.get('window').width;
+
 const TrackProgress = () => {
   const [stats, setStats] = useState({ totalCalories: 0, totalWorkouts: 0 });
   const [recentLogs, setRecentLogs] = useState([]);
-  const [graphData, setGraphData] = useState([
-    { value: 0, label: 'M' },
-    { value: 0, label: 'T' },
-    { value: 0, label: 'W' },
-    { value: 0, label: 'T' },
-    { value: 0, label: 'F' },
-    { value: 0, label: 'S' },
-    { value: 0, label: 'S' },
-  ]);
+  const [graphData, setGraphData] = useState([]);
+  const [maxY, setMaxY] = useState(2000);
 
   const fetchProgressData = () => {
     db.transaction(tx => {
+      // 1. Overall Stats
       tx.executeSql(
         'SELECT SUM(calories) as totalCals, COUNT(id) as totalCount FROM workouts',
         [],
@@ -382,24 +379,55 @@ const TrackProgress = () => {
         },
       );
 
+      // 2. Graph Data
+      tx.executeSql(
+        'SELECT date, SUM(calories) as dailyCalories FROM workouts GROUP BY date ORDER BY date DESC',
+        [],
+        (_, results) => {
+          let chartTemp = [];
+          let currentMax = 500;
+
+          for (let i = 0; i < results.rows.length; i++) {
+            const row = results.rows.item(i);
+            const val = Number(row.dailyCalories);
+            if (val > currentMax) currentMax = val;
+
+            const formattedDate = row.date.split('-').slice(1).join('/');
+
+            chartTemp.push({
+              value: val,
+              label: formattedDate,
+              frontColor: Colors.primary + '40',
+              key: `chart-item-${i}-${row.date}`,
+              topLabelComponent: () => (
+                <Text
+                  style={{
+                    color: Colors.primary,
+                    fontSize: 8,
+                    marginBottom: 4,
+                  }}
+                >
+                  {val}
+                </Text>
+              ),
+            });
+          }
+
+          setMaxY(Math.ceil(currentMax / 500) * 500);
+          setGraphData(chartTemp.reverse());
+        },
+      );
+
+      // 3. Recent History
       tx.executeSql(
         'SELECT * FROM workouts ORDER BY id DESC LIMIT 5',
         [],
         (_, results) => {
           let temp = [];
-          let chartTemp = [];
           for (let i = 0; i < results.rows.length; i++) {
-            const row = results.rows.item(i);
-            temp.push(row);
-            
-            chartTemp.push({
-              value: row.calories,
-              label: row.type.substring(0, 1), 
-              frontColor: Colors.primary,
-            });
+            temp.push(results.rows.item(i));
           }
           setRecentLogs(temp);
-          if (chartTemp.length > 0) setGraphData(chartTemp.reverse());
         },
       );
     });
@@ -421,7 +449,7 @@ const TrackProgress = () => {
         Your fitness journey at a glance
       </Text>
 
-      
+      {/* Stats Section */}
       <View style={styles.statsRow}>
         <View style={styles.statCard}>
           <Text style={styles.statValue}>
@@ -437,23 +465,56 @@ const TrackProgress = () => {
         </View>
       </View>
 
-      
+      {/* Scrollable Hybrid Graph */}
       <View style={styles.graphContainer}>
-        <Text style={styles.graphTitle}>Weekly Activity</Text>
-        <BarChart
-          data={graphData}
-          barWidth={22}
-          noOfSections={3}
-          barBorderRadius={6}
-          frontColor={Colors.primary}
-          yAxisThickness={0}
-          xAxisThickness={0}
-          hideRules
-          yAxisTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
-          xAxisLabelTextStyle={{ color: Colors.textSecondary, fontSize: 10 }}
-          isAnimated
-          animationDuration={500}
-        />
+        <View style={styles.graphHeader}>
+          <Text style={styles.graphTitle}>Performance Trends</Text>
+          <View style={styles.unitBadge}>
+            <Text style={styles.unitText}>kcal</Text>
+          </View>
+        </View>
+
+        <View style={styles.chartWrapper}>
+          {graphData.length > 0 ? (
+            <BarChart
+              data={graphData}
+              height={220}
+              barWidth={25}
+              spacing={30}
+              initialSpacing={20}
+              // FIX: Graph width ko container ke mutabik set kiya
+              width={screenWidth - 100}
+              isAnimated
+              scrollAnimation={true}
+              maxValue={maxY}
+              noOfSections={4}
+              barBorderTopLeftRadius={8}
+              barBorderTopRightRadius={8}
+              yAxisThickness={0}
+              xAxisThickness={1}
+              xAxisColor={'rgba(255,255,255,0.1)'}
+              yAxisTextStyle={styles.axisText}
+              xAxisLabelTextStyle={styles.axisText}
+              showLine
+              lineConfig={{
+                color: Colors.primary,
+                thickness: 3,
+                curved: true,
+                hideDataPoints: false,
+                dataPointsColor: '#fff',
+                dataPointsRadius: 4,
+              }}
+              animationDuration={600}
+              hideRules={false}
+              rulesColor="rgba(255,255,255,0.05)"
+              rulesType="solid"
+            />
+          ) : (
+            <View style={styles.noDataWrapper}>
+              <Text style={styles.noDataText}>No activity recorded yet.</Text>
+            </View>
+          )}
+        </View>
       </View>
 
       <Text
@@ -465,25 +526,21 @@ const TrackProgress = () => {
         Recent History
       </Text>
 
-      {recentLogs.length === 0 ? (
-        <Text style={styles.noDataText}>No workouts logged yet.</Text>
-      ) : (
-        recentLogs.map(item => (
-          <WorkoutCard
-            key={item.id.toString()}
-            title={item.type}
-            subtitle={item.date}
-            value={Number(item.calories).toFixed(0)}
-            unit="kcal"
-            iconBackground={
-              item.type === 'Running'
-                ? Colors.primary + '20'
-                : Colors.secondary + '20'
-            }
-          />
-        ))
-      )}
-      <View style={{ height: 100 }} />
+      {recentLogs.map(item => (
+        <WorkoutCard
+          key={item.id.toString()}
+          title={item.type}
+          subtitle={item.date}
+          value={Number(item.calories).toFixed(0)}
+          unit="kcal"
+          iconBackground={
+            item.type === 'Running'
+              ? Colors.primary + '20'
+              : Colors.secondary + '20'
+          }
+        />
+      ))}
+      <View style={{ height: 120 }} />
     </ScrollView>
   );
 };
@@ -506,28 +563,43 @@ const styles = StyleSheet.create({
   statValue: { color: Colors.primary, fontSize: 24, fontWeight: '900' },
   statLabel: {
     color: Colors.textSecondary,
-    fontSize: 12,
+    fontSize: 10,
     marginTop: 5,
     textTransform: 'uppercase',
+    letterSpacing: 1,
   },
   graphContainer: {
     backgroundColor: Colors.surface,
     borderRadius: 24,
-    padding: 20,
+    paddingVertical: 25,
+    paddingHorizontal: 15, // Side padding di taake graph touch na ho
+    overflow: 'hidden', // Isse lines bahir nahi jayengi
+  },
+  chartWrapper: {
     alignItems: 'center',
     justifyContent: 'center',
   },
-  graphTitle: {
-    color: '#fff',
-    fontWeight: 'bold',
-    alignSelf: 'flex-start',
+  graphHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
     marginBottom: 20,
+    paddingHorizontal: 5,
   },
-  noDataText: {
-    color: Colors.textSecondary,
-    textAlign: 'center',
-    marginTop: 20,
+  graphTitle: { color: '#fff', fontWeight: 'bold', fontSize: 16 },
+  unitBadge: {
+    backgroundColor: Colors.primary + '20',
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 6,
   },
+  unitText: { color: Colors.primary, fontSize: 10, fontWeight: 'bold' },
+  axisText: { color: 'rgba(255,255,255,0.4)', fontSize: 10 },
+  noDataWrapper: {
+    height: 200,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  noDataText: { color: Colors.textSecondary, fontSize: 14 },
 });
 
 export default TrackProgress;

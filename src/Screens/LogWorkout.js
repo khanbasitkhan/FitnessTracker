@@ -358,7 +358,6 @@ const LogWorkout = ({ userWeight, navigation }) => {
   const [duration, setDuration] = useState('');
   const [estimatedCalories, setEstimatedCalories] = useState('0');
 
-
   const isFormValid = selectedWorkout && duration && parseInt(duration) > 0;
 
   useEffect(() => {
@@ -375,14 +374,18 @@ const LogWorkout = ({ userWeight, navigation }) => {
   }, [selectedWorkout, duration]);
 
   const saveWorkout = () => {
-    const today = new Date().toISOString().split('T')[0];
+    // Correct Local Date Logic
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = String(now.getMonth() + 1).padStart(2, '0');
+    const day = String(now.getDate()).padStart(2, '0');
+    const today = `${year}-${month}-${day}`; // Format: YYYY-MM-DD (Local)
 
     db.transaction(tx => {
       tx.executeSql(
         'INSERT INTO workouts (type, duration, calories, date) VALUES (?,?,?,?)',
         [selectedWorkout.name, duration, estimatedCalories, today],
         () => {
-          
           Alert.alert(
             '🎉 Success!',
             `Workout Saved Successfully!\n\nYou burned ${estimatedCalories} kcal. Keep it up! 💪`,
@@ -393,7 +396,6 @@ const LogWorkout = ({ userWeight, navigation }) => {
       );
     });
   };
-
 
   const clearFields = () => {
     setSelectedWorkout(null);
@@ -446,11 +448,11 @@ const LogWorkout = ({ userWeight, navigation }) => {
             style={styles.input}
             placeholder="0"
             placeholderTextColor={Colors.textMuted}
-            keyboardType="number-pad" 
+            keyboardType="number-pad"
             value={duration}
             onChangeText={setDuration}
             textAlign="center"
-            selectionColor={Colors.primary} 
+            selectionColor={Colors.primary}
           />
         </View>
 
@@ -473,13 +475,12 @@ const LogWorkout = ({ userWeight, navigation }) => {
         </View>
       )}
 
-      
       <TouchableOpacity
         style={[
           GlobalStyles.primaryButton,
           {
             marginTop: 40,
-            backgroundColor: isFormValid ? Colors.primary : '#333', // Dark color when disabled
+            backgroundColor: isFormValid ? Colors.primary : '#333',
             opacity: isFormValid ? 1 : 0.5,
           },
         ]}
@@ -519,10 +520,7 @@ const styles = StyleSheet.create({
     borderColor: Colors.primary,
     backgroundColor: Colors.primary + '15',
   },
-  chipText: {
-    color: Colors.textSecondary,
-    fontWeight: '500',
-  },
+  chipText: { color: Colors.textSecondary, fontWeight: '500' },
   inputsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
@@ -538,7 +536,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     borderWidth: 1,
     borderColor: Colors.border,
-    textAlign: 'center', 
+    textAlign: 'center',
   },
   disabledInput: {
     backgroundColor: Colors.background,

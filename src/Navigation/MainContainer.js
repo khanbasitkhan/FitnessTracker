@@ -19,7 +19,7 @@
 
 //   return (
 //     <View style={{ flex: 1, backgroundColor: Colors.background }}>
-      
+
 //       <PagerView
 //         style={{ flex: 1 }}
 //         initialPage={0}
@@ -34,7 +34,6 @@
 //         </View>
 //       </PagerView>
 
-      
 //       <View style={styles.tabBar}>
 //         <TouchableOpacity
 //           style={styles.tabItem}
@@ -111,10 +110,10 @@ import {
   TouchableOpacity,
   StyleSheet,
   Dimensions,
-  Animated,
+  SafeAreaView,
 } from 'react-native';
 import PagerView from 'react-native-pager-view';
-import { Dumbbell, LineChart } from 'lucide-react-native'; 
+import { Dumbbell, LineChart } from 'lucide-react-native';
 import LogWorkout from '../Screens/LogWorkout';
 import TrackProgress from '../Screens/TrackProgress';
 import Colors from '../Constants/Colors';
@@ -125,13 +124,14 @@ const MainContainer = () => {
   const [activeTab, setActiveTab] = useState(0);
   const pagerRef = React.useRef(null);
 
-  const onTabPress = (index) => {
+  const onTabPress = index => {
     pagerRef.current.setPage(index);
     setActiveTab(index);
   };
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
+      {/* Main Content Area */}
       <PagerView
         style={{ flex: 1 }}
         initialPage={0}
@@ -146,100 +146,102 @@ const MainContainer = () => {
         </View>
       </PagerView>
 
-      
-      <View style={styles.tabContainer}>
-        <View style={styles.floatingTabBar}>
-          
-          
-          <TouchableOpacity
-            style={styles.tabItem}
-            onPress={() => onTabPress(0)}
-            activeOpacity={0.7}
+      {/* Full Width Standard Bottom Navigation */}
+      <View style={styles.fullWidthTabBar}>
+        {/* Workout Tab */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          onPress={() => onTabPress(0)}
+          activeOpacity={0.6}
+        >
+          <View
+            style={[styles.iconWrapper, activeTab === 0 && styles.activePill]}
           >
-            <View style={[styles.iconContainer, activeTab === 0 && styles.activeIconBg]}>
-              <Dumbbell 
-                size={24} 
-                color={activeTab === 0 ? Colors.background : Colors.textSecondary} 
-                strokeWidth={activeTab === 0 ? 2.5 : 2}
-              />
-            </View>
-            <Text style={[styles.tabText, activeTab === 0 && styles.activeTabText]}>
-              Workout
-            </Text>
-          </TouchableOpacity>
-
-          
-          <TouchableOpacity
-            style={styles.tabItem}
-            onPress={() => onTabPress(1)}
-            activeOpacity={0.7}
+            <Dumbbell
+              size={24}
+              color={activeTab === 0 ? Colors.primary : Colors.textSecondary}
+              strokeWidth={activeTab === 0 ? 2.5 : 2}
+            />
+          </View>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 0 ? styles.activeText : styles.inactiveText,
+            ]}
           >
-            <View style={[styles.iconContainer, activeTab === 1 && styles.activeIconBg]}>
-              <LineChart 
-                size={24} 
-                color={activeTab === 1 ? Colors.background : Colors.textSecondary} 
-                strokeWidth={activeTab === 1 ? 2.5 : 2}
-              />
-            </View>
-            <Text style={[styles.tabText, activeTab === 1 && styles.activeTabText]}>
-              Progress
-            </Text>
-          </TouchableOpacity>
+            Workout
+          </Text>
+        </TouchableOpacity>
 
-        </View>
+        {/* Progress Tab */}
+        <TouchableOpacity
+          style={styles.tabItem}
+          onPress={() => onTabPress(1)}
+          activeOpacity={0.6}
+        >
+          <View
+            style={[styles.iconWrapper, activeTab === 1 && styles.activePill]}
+          >
+            <LineChart
+              size={24}
+              color={activeTab === 1 ? Colors.primary : Colors.textSecondary}
+              strokeWidth={activeTab === 1 ? 2.5 : 2}
+            />
+          </View>
+          <Text
+            style={[
+              styles.tabText,
+              activeTab === 1 ? styles.activeText : styles.inactiveText,
+            ]}
+          >
+            Progress
+          </Text>
+        </TouchableOpacity>
       </View>
+      {/* Bottom Notch Area for Modern Phones */}
+      <SafeAreaView style={{ backgroundColor: Colors.surface }} />
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  tabContainer: {
-    position: 'absolute',
-    bottom: 30, 
-    width: '100%',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-  },
-  floatingTabBar: {
+  fullWidthTabBar: {
     flexDirection: 'row',
-    width: width * 0.85,
-    height: 75,
-    backgroundColor: Colors.surface, 
-    borderRadius: 35,
-    elevation: 10, 
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 10 },
-    shadowOpacity: 0.3,
-    shadowRadius: 20,
+    width: '100%',
+    height: 70,
+    backgroundColor: Colors.surface, // Standard bottom bar background
+    borderTopWidth: 1,
+    borderColor: 'rgba(255,255,255,0.05)',
     justifyContent: 'space-around',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: 'rgba(255,255,255,0.05)',
+    paddingBottom: 5, // Safe space for text labels
   },
-  tabItem: { 
-    alignItems: 'center', 
+  tabItem: {
+    flex: 1,
+    alignItems: 'center',
     justifyContent: 'center',
-    flex: 1 
   },
-  iconContainer: {
-    padding: 10,
+  iconWrapper: {
+    paddingVertical: 4,
+    paddingHorizontal: 16,
     borderRadius: 20,
     marginBottom: 4,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
-  activeIconBg: {
-    backgroundColor: Colors.primary, 
-    transform: [{ scale: 1.1 }],
+  activePill: {
+    backgroundColor: Colors.primary + '15', // Subtle soft background behind the active icon
   },
   tabText: {
-    color: Colors.textSecondary,
-    fontWeight: 'bold',
-    fontSize: 10,
-    textTransform: 'uppercase',
-    letterSpacing: 0.5,
-  },
-  activeTabText: {
-    color: Colors.primary,
     fontSize: 11,
+    fontWeight: '600',
+    letterSpacing: 0.3,
+  },
+  activeText: {
+    color: Colors.primary,
+  },
+  inactiveText: {
+    color: Colors.textSecondary,
   },
 });
 
