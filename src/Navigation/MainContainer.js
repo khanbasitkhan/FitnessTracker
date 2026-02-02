@@ -6,7 +6,7 @@ import {
   StyleSheet,
   Dimensions,
 } from 'react-native';
-import PagerView from 'react-native-pager-view'; // Isko install karna hoga: npm install react-native-pager-view
+import PagerView from 'react-native-pager-view';
 import LogWorkout from '../Screens/LogWorkout';
 import TrackProgress from '../Screens/TrackProgress';
 import Colors from '../Constants/Colors';
