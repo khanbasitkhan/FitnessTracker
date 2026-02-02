@@ -374,12 +374,12 @@ const LogWorkout = ({ userWeight, navigation }) => {
   }, [selectedWorkout, duration]);
 
   const saveWorkout = () => {
-    // Correct Local Date Logic
+    
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const today = `${year}-${month}-${day}`; // Format: YYYY-MM-DD (Local)
+    const today = `${year}-${month}-${day}`;
 
     db.transaction(tx => {
       tx.executeSql(

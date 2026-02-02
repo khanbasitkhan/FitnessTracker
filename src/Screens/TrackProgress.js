@@ -355,7 +355,7 @@ import GlobalStyles from '../Constants/Styles';
 import db from '../Services/Database';
 import WorkoutCard from '../Components/WorkoutCard';
 
-// Screen width nikalne ke liye
+
 const screenWidth = Dimensions.get('window').width;
 
 const TrackProgress = () => {
@@ -366,7 +366,7 @@ const TrackProgress = () => {
 
   const fetchProgressData = () => {
     db.transaction(tx => {
-      // 1. Overall Stats
+      
       tx.executeSql(
         'SELECT SUM(calories) as totalCals, COUNT(id) as totalCount FROM workouts',
         [],
@@ -379,7 +379,7 @@ const TrackProgress = () => {
         },
       );
 
-      // 2. Graph Data
+      
       tx.executeSql(
         'SELECT date, SUM(calories) as dailyCalories FROM workouts GROUP BY date ORDER BY date DESC',
         [],
@@ -418,7 +418,7 @@ const TrackProgress = () => {
         },
       );
 
-      // 3. Recent History
+      
       tx.executeSql(
         'SELECT * FROM workouts ORDER BY id DESC LIMIT 5',
         [],
@@ -465,10 +465,10 @@ const TrackProgress = () => {
         </View>
       </View>
 
-      {/* Scrollable Hybrid Graph */}
+      
       <View style={styles.graphContainer}>
         <View style={styles.graphHeader}>
-          <Text style={styles.graphTitle}>Performance Trends</Text>
+          <Text style={styles.graphTitle}>Progress Graph</Text>
           <View style={styles.unitBadge}>
             <Text style={styles.unitText}>kcal</Text>
           </View>
@@ -572,8 +572,8 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.surface,
     borderRadius: 24,
     paddingVertical: 25,
-    paddingHorizontal: 15, // Side padding di taake graph touch na ho
-    overflow: 'hidden', // Isse lines bahir nahi jayengi
+    paddingHorizontal: 15,
+    overflow: 'hidden', 
   },
   chartWrapper: {
     alignItems: 'center',

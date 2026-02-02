@@ -131,10 +131,12 @@ const MainContainer = () => {
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.background }}>
-      {/* Main Content Area */}
+      
       <PagerView
         style={{ flex: 1 }}
         initialPage={0}
+        
+        scrollEnabled={false}
         onPageSelected={e => setActiveTab(e.nativeEvent.position)}
         ref={pagerRef}
       >
@@ -146,9 +148,9 @@ const MainContainer = () => {
         </View>
       </PagerView>
 
-      {/* Full Width Standard Bottom Navigation */}
+      
       <View style={styles.fullWidthTabBar}>
-        {/* Workout Tab */}
+      
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => onTabPress(0)}
@@ -173,7 +175,7 @@ const MainContainer = () => {
           </Text>
         </TouchableOpacity>
 
-        {/* Progress Tab */}
+      
         <TouchableOpacity
           style={styles.tabItem}
           onPress={() => onTabPress(1)}
@@ -198,7 +200,7 @@ const MainContainer = () => {
           </Text>
         </TouchableOpacity>
       </View>
-      {/* Bottom Notch Area for Modern Phones */}
+     
       <SafeAreaView style={{ backgroundColor: Colors.surface }} />
     </View>
   );
@@ -209,12 +211,12 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     width: '100%',
     height: 70,
-    backgroundColor: Colors.surface, // Standard bottom bar background
+    backgroundColor: Colors.surface,
     borderTopWidth: 1,
     borderColor: 'rgba(255,255,255,0.05)',
     justifyContent: 'space-around',
     alignItems: 'center',
-    paddingBottom: 5, // Safe space for text labels
+    paddingBottom: 5,
   },
   tabItem: {
     flex: 1,
@@ -230,7 +232,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   activePill: {
-    backgroundColor: Colors.primary + '15', // Subtle soft background behind the active icon
+    backgroundColor: Colors.primary + '15',
   },
   tabText: {
     fontSize: 11,
